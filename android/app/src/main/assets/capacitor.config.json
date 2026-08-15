@@ -1,0 +1,9 @@
+{
+	"appId": "com.vynl.app",
+	"appName": "MAZ MUSIC",
+	"webDir": "www",
+	"bundledWebRuntime": false,
+	"android": {
+		"allowMixedContent": true
+	}
+}

@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MAZ MUSIC</title>
+<style>
+:root{
+  --black:#000000;
+  --bg:#0a0a0a;
+  --elevated:#151312;
+  --highlight:#211d18;
+  --gold:#d4af37;
+  --gold-bright:#f4cc4c;
+  --gold-dim:#8a7326;
+  --text:#ffffff;
+  --text-sub:#b3aca0;
+  --border:rgba(212,175,55,0.14);
+  --danger:#e0524a;
+  --radius:14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--black); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden;
+}
+button{font-family:inherit; cursor:pointer;}
+input{font-family:inherit;}
+::-webkit-scrollbar{width:0;height:0;}
+
+#phoneWrap{
+  height:100vh; height:100dvh; width:100%;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 50% 0%, #171310 0%, #000 70%);
+}
+#device{
+  position:relative; width:100%; height:100%;
+  max-width:430px; max-height:100vh;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+@media (min-width:700px){
+  #device{
+    max-height:900px; border-radius:40px; border:8px solid #1c1a16;
+    box-shadow:0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.08);
+  }
+}
+
+/* ---------- AUTH ---------- */
+#authScreen{
+  position:absolute; inset:0; z-index:50;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:32px 28px; background:
+    radial-gradient(circle at 30% 10%, rgba(212,175,55,0.14), transparent 55%), var(--black);
+}
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:36px;}
+.brand .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold-bright),var(--gold-dim)); display:flex;align-items:center;justify-content:center;font-weight:800;color:#000;font-size:18px;}
+.brand .name{font-size:22px; font-weight:800; letter-spacing:0.5px;}
+.authTitle{font-size:26px; font-weight:800; margin:0 0 6px;}
+.authSub{color:var(--text-sub); font-size:14px; margin:0 0 28px; line-height:1.5;}
+.field{margin-bottom:14px;}
+.field label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-sub); margin-bottom:6px;}
+.field input{
+  width:100%; padding:14px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+  background:var(--elevated); color:var(--text); font-size:15px; outline:none;
+}
+.field input:focus{border-color:var(--gold);}
+.btnGold{
+  width:100%; padding:15px; border-radius:999px; border:none; background:var(--gold-bright);
+  color:#141210; font-weight:800; font-size:15px; margin-top:6px; letter-spacing:0.2px;
+  transition:transform .12s ease;
+}
+.btnGold:active{transform:scale(0.97);}
+.btnGold:disabled{opacity:0.5;}
+.btnGhost{
+  width:100%; padding:15px; border-radius:999px; border:1px solid var(--border); background:transparent;
+  color:var(--text); font-weight:700; font-size:14px; margin-top:10px;
+}
+.switchLine{text-align:center; margin-top:20px; font-size:13px; color:var(--text-sub);}
+.switchLine b{color:var(--gold-bright); font-weight:700;}
+.errMsg{color:var(--danger); font-size:13px; margin:-6px 0 12px; min-height:16px;}
+.codeBoxes{display:flex; gap:10px; justify-content:center; margin:18px 0 6px;}
+.codeBoxes input{
+  width:44px; height:54px; text-align:center; font-size:22px; font-weight:800;
+  border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:var(--elevated); color:var(--gold-bright);
+}
+.devHint{
+  background:rgba(212,175,55,0.08); border:1px dashed var(--border); border-radius:10px;
+  padding:10px 12px; font-size:12.5px; color:var(--text-sub); line-height:1.5; margin-bottom:8px;
+}
+.devHint b{color:var(--gold-bright); letter-spacing:2px; font-size:16px;}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none; flex-direction:column; height:100%; position:relative;}
+#topBar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 18px 10px;
+}
+#topBar .greet{font-size:20px; font-weight:800;}
+#topBar .avatar{
+  width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold-bright),var(--gold-dim));
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#141210;
+}
+#views{flex:1; overflow-y:auto; padding:4px 18px 12px;}
+.view{display:none;}
+.view.active{display:block;}
+
+.sectionTitle{font-size:19px; font-weight:800; margin:18px 0 12px;}
+.pillRow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;}
+.pill{
+  padding:8px 16px; border-radius:999px; background:var(--elevated); color:var(--text-sub);
+  font-size:12.5px; font-weight:700; border:1px solid transparent;
+}
+.pill.active{background:var(--gold-bright); color:#141210;}
+
+.card{
+  background:var(--elevated); border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px;
+  margin-bottom:8px; border:1px solid transparent;
+}
+.card:active{background:var(--highlight);}
+.thumb{
+  width:48px; height:48px; border-radius:8px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),#3a3126);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+  overflow:hidden;
+}
+.thumb img{width:100%; height:100%; object-fit:cover;}
+.thumb.missing{background:#2b2b2b; opacity:0.6;}
+.meta{flex:1; min-width:0;}
+.meta .t{font-size:14.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.meta .a{font-size:12.5px; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.rowBtn{background:none; border:none; color:var(--text-sub); font-size:18px; padding:8px;}
+.rowBtn.on{color:var(--gold-bright);}
+.rowBtn.loading{animation: spin 1s linear infinite;}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* ---------- PLAYLISTS ---------- */
+.playlistCard{
+  background:var(--elevated); border-radius:12px; padding:14px; display:flex; align-items:center; gap:12px;
+  margin-bottom:8px; border:1px solid transparent;
+}
+.playlistCard:active{background:var(--highlight);}
+.playlistCard .plIcon{
+  width:48px;height:48px;border-radius:8px; flex-shrink:0; background:linear-gradient(135deg,#3a3126,var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.playlistCard .meta{flex:1;min-width:0;}
+.playlistCard .meta .t{font-size:14.5px;font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.playlistCard .meta .a{font-size:12.5px;color:var(--text-sub);}
+#newPlaylistBar{margin-bottom:14px;}
+#newPlaylistBar button{
+  width:100%; padding:12px; border-radius:10px; background:var(--gold-bright); color:#141210;
+  font-weight:800; font-size:13.5px; border:none;
+}
+.backRow{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+.backRow button{background:none;border:none;color:var(--text);font-size:20px; padding:4px 8px 4px 0;}
+.backRow .plTitle{font-size:19px; font-weight:800;}
+#playlistPickerList{max-height:40vh; overflow-y:auto; margin-bottom:14px;}
+.pickerRow{
+  display:flex; align-items:center; justify-content:space-between; padding:12px 2px;
+  border-bottom:1px solid rgba(255,255,255,0.06); font-size:14.5px; font-weight:600;
+}
+.pickerRow button{
+  background:none; border:1px solid var(--border); color:var(--gold-bright); border-radius:999px;
+  padding:6px 14px; font-size:12px; font-weight:700;
+}
+.pickerRow button.on{background:var(--gold-bright); color:#141210; border-color:var(--gold-bright);}
+.newPlaylistRow{display:flex; gap:8px;}
+.newPlaylistRow input{
+  flex:1; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+  background:var(--bg); color:var(--text); font-size:14px; outline:none;
+}
+.newPlaylistRow button{
+  padding:0 16px; border-radius:10px; background:var(--gold-bright); color:#141210; border:none; font-weight:800; font-size:13px;
+}
+
+.emptyState{
+  text-align:center; padding:50px 20px; color:var(--text-sub);
+}
+.emptyState .big{font-size:40px; margin-bottom:10px;}
+.emptyState .t1{color:var(--text); font-weight:800; font-size:16px; margin-bottom:6px;}
+.emptyState .t2{font-size:13px; line-height:1.6;}
+
+#uploadBar{
+  display:flex; gap:8px; margin-bottom:14px;
+}
+#uploadBar label{
+  flex:1; text-align:center; padding:12px; border-radius:10px; background:var(--gold-bright);
+  color:#141210; font-weight:800; font-size:13.5px;
+}
+#uploadBar input[type=file]{display:none;}
+#searchInput{
+  width:100%; padding:13px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+  background:var(--elevated); color:var(--text); font-size:14.5px; margin-bottom:14px; outline:none;
+}
+#searchInput:focus{border-color:var(--gold);}
+
+/* ---------- MINI PLAYER ---------- */
+#miniPlayer{
+  display:none; align-items:center; gap:10px; padding:9px 12px; margin:0 8px;
+  background:linear-gradient(135deg,#241f16,#171310); border-radius:10px; border:1px solid var(--border);
+  position:relative; overflow:hidden;
+}
+#miniPlayer .progressLine{position:absolute; bottom:0; left:0; height:2px; background:var(--gold-bright); width:0%;}
+#miniPlayer .thumb{width:38px;height:38px;}
+#miniPlayer .meta .t{font-size:13.5px;}
+#miniPlayer .meta .a{font-size:11.5px;}
+#miniPlayer .ctrls{display:flex; align-items:center; gap:4px;}
+#miniPlayer button{background:none;border:none;color:var(--text);font-size:19px;padding:6px;}
+
+/* ---------- BOTTOM NAV ---------- */
+#bottomNav{
+  display:flex; padding:8px 6px calc(8px + var(--safe-bottom));
+  border-top:1px solid var(--border); background:var(--bg);
+}
+.navBtn{
+  flex:1; background:none; border:none; color:var(--text-sub); display:flex; flex-direction:column;
+  align-items:center; gap:3px; font-size:10.5px; font-weight:700; padding:6px 0;
+}
+.navBtn .ic{font-size:20px;}
+.navBtn.active{color:var(--gold-bright);}
+
+/* ---------- NOW PLAYING FULL ---------- */
+#nowPlaying{
+  position:absolute; inset:0; background:linear-gradient(180deg,#2a2114 0%, #0a0a0a 45%);
+  transform:translateY(100%); transition:transform .32s cubic-bezier(.2,.8,.2,1); z-index:40;
+  display:flex; flex-direction:column; padding:14px 22px calc(20px + var(--safe-bottom));
+}
+#nowPlaying.open{transform:translateY(0);}
+#npTop{display:flex; align-items:center; justify-content:space-between; padding:6px 0 10px;}
+#npTop button{background:none;border:none;color:var(--text);font-size:20px;}
+#npTop .lbl{font-size:11px; color:var(--text-sub); text-transform:uppercase; letter-spacing:1px; font-weight:700;}
+
+#ytPlayerBox{
+  position:absolute; width:1px; height:1px; opacity:0.01; pointer-events:none; left:-9999px; top:-9999px;
+}
+
+#npArt{
+  margin:20px auto; width:78%; aspect-ratio:1; border-radius:14px;
+  background:linear-gradient(135deg,var(--gold),#2a2418);
+  display:flex; align-items:center; justify-content:center; font-size:64px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative; overflow:hidden;
+}
+#npArtImg{
+  width:100%; height:100%; object-fit:cover; display:none; position:absolute; inset:0;
+}
+#npArtIcon{position:relative; z-index:1;}
+
+#lyricsPanel{
+  position:absolute; inset:0; background:#0a0a0a; display:none; flex-direction:column;
+  padding:14px 22px calc(20px + var(--safe-bottom)); z-index:5;
+}
+#lyricsPanel.show{display:flex;}
+#lyricsHead{display:flex; align-items:center; justify-content:space-between; padding:6px 0 14px;}
+#lyricsHead button{background:none;border:none;color:var(--text);font-size:18px;}
+#lyricsBody{flex:1; overflow-y:auto; font-size:15px; line-height:1.9; color:var(--text-sub); white-space:pre-line;}
+#npInfo{display:flex; align-items:center; justify-content:space-between; margin-top:24px;}
+#npInfo .t{font-size:21px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#npInfo .a{font-size:14px; color:var(--text-sub); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#npInfo button{background:none;border:none;color:var(--text-sub);font-size:22px;}
+#npInfo button.on{color:var(--gold-bright);}
+#npProgress{margin-top:22px;}
+#npBar{width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,0.15); position:relative; cursor:pointer;}
+#npBar .fill{position:absolute;left:0;top:0;height:100%;background:var(--gold-bright);border-radius:2px; width:0%;}
+#npBar .knob{position:absolute; top:50%; width:12px;height:12px;border-radius:50%;background:var(--gold-bright); transform:translate(-50%,-50%); left:0%;}
+#npTimes{display:flex; justify-content:space-between; font-size:11px; color:var(--text-sub); margin-top:6px;}
+#npControls{display:flex; align-items:center; justify-content:space-between; margin-top:26px;}
+#npControls button{background:none;border:none;color:var(--text);}
+#npControls .side{font-size:19px; color:var(--text-sub);}
+#npControls .side.on{color:var(--gold-bright);}
+#npControls .skip{font-size:26px;}
+#npPlayBtn{
+  width:64px;height:64px;border-radius:50%;background:var(--gold-bright); color:#141210;
+  display:flex;align-items:center;justify-content:center; font-size:24px;
+}
+#npFooter{display:flex; justify-content:space-between; align-items:center; margin-top:28px; font-size:12px; color:var(--text-sub);}
+#npFooter .dlBtn{display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-sub); font-size:12.5px; font-weight:700;}
+#npFooter .dlBtn.on{color:var(--gold-bright);}
+
+/* toast */
+#toast{
+  position:absolute; left:50%; bottom:100px; transform:translateX(-50%) translateY(20px);
+  background:var(--elevated); border:1px solid var(--border); padding:10px 16px; border-radius:999px;
+  font-size:12.5px; opacity:0; transition:all .25s ease; z-index:80; white-space:nowrap; pointer-events:none;
+}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+.modalOverlay{
+  position:absolute; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:flex-end; z-index:70;
+}
+.modalOverlay.show{display:flex;}
+.modalSheet{
+  width:100%; background:var(--elevated); border-radius:18px 18px 0 0; padding:22px 20px calc(24px + var(--safe-bottom));
+}
+.modalSheet h3{margin:0 0 8px; font-size:16px;}
+.modalSheet p{margin:0 0 16px; font-size:13px; color:var(--text-sub); line-height:1.5;}
+</style>
+<script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+<div id="phoneWrap">
+<div id="device">
+
+  <!-- AUTH -->
+  <div id="authScreen">
+    <div class="brand"><div class="mark">M</div><div class="name">MAZ MUSIC</div></div>
+
+    <div id="loginView">
+      <div class="authTitle">Welcome back</div>
+      <div class="authSub">Log in to keep listening.</div>
+      <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="errMsg" id="loginErr"></div>
+      <button class="btnGold" onclick="doLogin()">Log In</button>
+      <div class="switchLine">Don't have an account? <b onclick="showView('signupView')">Sign up</b></div>
+    </div>
+
+    <div id="signupView" style="display:none">
+      <div class="authTitle">Create your account</div>
+      <div class="authSub">Free forever. Upload your own music library.</div>
+      <div class="field"><label>Username</label><input id="suName" type="text" placeholder="goldenlistener"></div>
+      <div class="field"><label>Email</label><input id="suEmail" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input id="suPassword" type="password" placeholder="At least 6 characters"></div>
+      <div class="errMsg" id="suErr"></div>
+      <button class="btnGold" onclick="doSignup()">Create Account</button>
+      <div class="switchLine">Already have an account? <b onclick="showView('loginView')">Log in</b></div>
+    </div>
+
+  </div>
+
+  <div id="ytPlayerBox"></div>
+
+  <!-- MAIN APP -->
+  <div id="app">
+    <div id="topBar">
+      <div class="greet" id="greetText">Good evening</div>
+      <div class="avatar" id="avatarInit" onclick="logout()" title="Log out">V</div>
+    </div>
+
+    <div id="views">
+      <!-- HOME -->
+      <div class="view active" id="view-home">
+        <div id="uploadBar">
+          <label>+ Add songs to library<input type="file" id="fileInput" accept="audio/*" multiple onchange="handleUpload(event)"></label>
+        </div>
+        <div class="sectionTitle" id="forYouTitle" style="display:none">Made for you</div>
+        <div id="forYouList"></div>
+        <div class="sectionTitle">Trending now</div>
+        <div class="devHint" id="trendingHint" style="display:none">Couldn't load trending songs — check your connection.</div>
+        <div id="trendingList"></div>
+        <div class="sectionTitle">Recently added</div>
+        <div id="homeList"></div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="view" id="view-search">
+        <input id="searchInput" placeholder="Search for any song" oninput="onSearchInput()">
+        <div id="searchList"></div>
+      </div>
+
+      <!-- LIBRARY -->
+      <div class="view" id="view-library">
+        <div class="pillRow">
+          <button class="pill active" data-lib="all" onclick="setLibFilter('all')">All</button>
+          <button class="pill" data-lib="liked" onclick="setLibFilter('liked')">Liked</button>
+          <button class="pill" data-lib="downloaded" onclick="setLibFilter('downloaded')">Downloaded</button>
+          <button class="pill" data-lib="playlists" onclick="setLibFilter('playlists')">Playlists</button>
+        </div>
+        <input id="libSearchInput" placeholder="Search your library" oninput="renderLibrary()">
+        <div id="newPlaylistBar" style="display:none"><button onclick="promptCreatePlaylist()">+ New Playlist</button></div>
+        <div class="backRow" id="playlistBackRow" style="display:none">
+          <button onclick="closePlaylistDetail()">←</button>
+          <div class="plTitle" id="playlistDetailTitle">Playlist</div>
+        </div>
+        <div class="sectionTitle" id="libTitle">Your Library</div>
+        <div id="libList"></div>
+      </div>
+    </div>
+
+    <div id="miniPlayer" onclick="openNowPlaying()">
+      <div class="progressLine" id="miniProgress"></div>
+      <div class="thumb" id="miniThumb">♪</div>
+      <div class="meta"><div class="t" id="miniTitle">—</div><div class="a" id="miniArtist">—</div></div>
+      <div class="ctrls">
+        <button onclick="event.stopPropagation(); togglePlay()" id="miniPlayBtn">▶</button>
+        <button onclick="event.stopPropagation(); playNext()">⏭</button>
+      </div>
+    </div>
+
+    <div id="bottomNav">
+      <button class="navBtn active" data-view="home" onclick="switchTab('home')"><div class="ic">⌂</div>Home</button>
+      <button class="navBtn" data-view="search" onclick="switchTab('search')"><div class="ic">⌕</div>Search</button>
+      <button class="navBtn" data-view="library" onclick="switchTab('library')"><div class="ic">☰</div>Library</button>
+    </div>
+  </div>
+
+  <!-- NOW PLAYING FULL SCREEN -->
+  <div id="nowPlaying">
+    <div id="npTop">
+      <button onclick="closeNowPlaying()">⌄</button>
+      <div class="lbl">Now Playing</div>
+      <button onclick="toggleLyrics()" id="lyricsToggleBtn" title="Lyrics">Aa</button>
+    </div>
+    <div id="npArt">
+      <img id="npArtImg" src="" alt="Album Artwork">
+      <span id="npArtIcon">♪</span>
+    </div>
+    <div id="npInfo">
+      <div style="min-width:0; flex:1; margin-right:12px;">
+        <div class="t" id="npTitle">—</div>
+        <div class="a" id="npArtist">—</div>
+      </div>
+      <button id="npLikeBtn" onclick="toggleLike(currentSongId())">♡</button>
+    </div>
+    <div id="npProgress">
+      <div id="npBar" onclick="seekFromBar(event)"><div class="fill" id="npFill"></div><div class="knob" id="npKnob"></div></div>
+      <div id="npTimes"><span id="npCur">0:00</span><span id="npDur">0:00</span></div>
+    </div>
+    <div id="npControls">
+      <button class="side" id="shuffleBtn" onclick="toggleShuffle()">⤨</button>
+      <button class="skip" onclick="playPrev()">⏮</button>
+      <button id="npPlayBtn" onclick="togglePlay()">▶</button>
+      <button class="skip" onclick="playNext()">⏭</button>
+      <button class="side" id="repeatBtn" onclick="toggleRepeat()">⟳</button>
+    </div>
+    <div id="npFooter">
+      <span id="npFrom">From your library</span>
+      <button class="dlBtn" id="npDlBtn" onclick="toggleDownload(currentSongId())">⬇ Download</button>
+    </div>
+
+    <div id="lyricsPanel">
+      <div id="lyricsHead">
+        <div class="lbl">Lyrics</div>
+        <button onclick="toggleLyrics()">✕</button>
+      </div>
+      <div id="lyricsBody">Pick a song to see lyrics.</div>
+    </div>
+  </div>
+
+  <div class="modalOverlay" id="reattachModal">
+    <div class="modalSheet">
+      <h3 id="reattachTitle">Re-add audio file</h3>
+      <p>This song's audio isn't loaded in this browser session yet. Choose the same file again to make it playable.</p>
+      <label style="display:block" for="reattachInput">
+        <div class="btnGold" style="text-align:center">Choose file</div>
+      </label>
+      <input type="file" id="reattachInput" accept="audio/*" style="display:none" onchange="handleReattach(event)">
+      <button class="btnGhost" onclick="closeModal('reattachModal')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="modalOverlay" id="playlistPickerModal">
+    <div class="modalSheet">
+      <h3>Add to Playlist</h3>
+      <div id="playlistPickerList"></div>
+      <div class="newPlaylistRow">
+        <input id="newPlaylistNameInput" placeholder="New playlist name">
+        <button onclick="createPlaylistFromPicker()">Create</button>
+      </div>
+      <button class="btnGhost" onclick="closeModal('playlistPickerModal')">Done</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+</div>
+
+<audio id="audioEl" preload="auto" playsinline webkit-playsinline></audio>
+
+<!-- Firebase (Auth + Firestore for account data & library sync) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjrBTWhWzWdQsb2jzQanoUX-MuvvA244Q",
+    authDomain: "maz-player-bddae.firebaseapp.com",
+    projectId: "maz-player-bddae",
+    storageBucket: "maz-player-bddae.firebasestorage.app",
+    messagingSenderId: "470842789889",
+    appId: "1:470842789889:web:f831b88d8d1ecbaef3f000",
+    measurementId: "G-M862QGJEJT"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fbAuth = firebase.auth();
+  const fbDb = firebase.firestore();
+  // Not using Firestore's own IndexedDB persistence layer — it fights with
+  // itself across reloads ("zombie client" errors) inside a WebView. Reads
+  // are still cached in memory for the session, and downloaded songs (the
+  // large offline data) live in their own separate IndexedDB store, so
+  // offline playback is unaffected either way.
+</script>
+
+<script>
+/* ============================= INDEXEDDB FOR AUDIO STORAGE ============================= */
+let db = null;
+function initDB(){
+  return new Promise((resolve, reject)=>{
+    const request = indexedDB.open('VynlAudioDB', 1);
+    request.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('audioBlobs')){
+        db.createObjectStore('audioBlobs');
+      }
+    };
+    request.onsuccess = (e)=>{ db = e.target.result; resolve(db); };
+    request.onerror = (e)=>{ console.error("IndexedDB error", e); reject(e); };
+  });
+}
+async function saveAudioBlob(id, blob){
+  if(!db) await initDB();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction('audioBlobs', 'readwrite');
+    tx.objectStore('audioBlobs').put(blob, id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e);
+  });
+}
+async function getAudioBlob(id){
+  if(!db) await initDB();
+  return new Promise((resolve)=>{
+    const tx = db.transaction('audioBlobs', 'readonly');
+    const req = tx.objectStore('audioBlobs').get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => resolve(null);
+  });
+}
+async function removeAudioBlob(id){
+  if(!db) await initDB();
+  return new Promise((resolve)=>{
+    const tx = db.transaction('audioBlobs', 'readwrite');
+    tx.objectStore('audioBlobs').delete(id);
+    tx.oncomplete = () => resolve();
+  });
+}
+
+/* ============================= STATE ============================= */
+let currentUser = null;          
+let library = [];                
+let liked = new Set();
+let history = [];                // recently played, newest first — powers "For You" + autoplay
+let audioBlobs = {};             
+let queueIds = [];               
+let currentIndex = -1;
+let shuffleOn = false;
+let repeatMode = 'off';          
+let libFilter = 'all';
+
+let downloadingIds = new Set();
+const audioEl = document.getElementById('audioEl');
+
+/* ============================= STORAGE HELPERS (Firestore, per-account) ============================= */
+// Library/liked data lives in Firestore under users/{uid}. Audio blobs stay in
+// IndexedDB on-device (Firestore isn't meant for large binary files).
+async function storeSet(field, value){
+  if(!currentUser || !currentUser.uid) return;
+  try{
+    await fbDb.collection('users').doc(currentUser.uid).set({ [field]: value }, { merge: true });
+  }catch(e){ console.error('firestore set failed', e); }
+}
+async function storeGet(field){
+  if(!currentUser || !currentUser.uid) return null;
+  try{
+    const snap = await fbDb.collection('users').doc(currentUser.uid).get();
+    if(!snap.exists) return null;
+    const data = snap.data();
+    return (field in data) ? data[field] : null;
+  }catch(e){ return null; }
+}
+
+/* ============================= UTIL ============================= */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function fmtTime(s){
+  if(!isFinite(s)) return '0:00';
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return m+':'+String(sec).padStart(2,'0');
+}
+function uid(){ return 'id_'+Math.random().toString(36).slice(2)+Date.now().toString(36); }
+function showView(id){
+  ['loginView','signupView'].forEach(v=>document.getElementById(v).style.display = (v===id?'block':'none'));
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('suErr').textContent='';
+}
+
+/* ============================= AUTH (Firebase) ============================= */
+let authReady = false; // set true once the initial onAuthStateChanged fires, so init() doesn't race it
+
+async function doSignup(){
+  const name = document.getElementById('suName').value.trim();
+  const email = document.getElementById('suEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('suPassword').value;
+  const err = document.getElementById('suErr');
+  if(!name || !email || !pass){ err.textContent='Please fill in every field.'; return; }
+  if(!email.includes('@') || !email.includes('.')){ err.textContent='Enter a valid email address.'; return; }
+  if(pass.length < 6){ err.textContent='Password must be at least 6 characters.'; return; }
+  err.textContent='';
+  try{
+    const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+    await cred.user.updateProfile({ displayName: name });
+    toast('Account created 🎉');
+    // onAuthStateChanged below picks this up and calls loadUserSession.
+  }catch(e){
+    err.textContent = friendlyAuthError(e);
+  }
+}
+
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginErr');
+  if(!email || !pass){ err.textContent='Enter your email and password.'; return; }
+  err.textContent='';
+  try{
+    await fbAuth.signInWithEmailAndPassword(email, pass);
+    // onAuthStateChanged below picks this up and calls loadUserSession.
+  }catch(e){
+    err.textContent = friendlyAuthError(e);
+  }
+}
+
+async function logout(){
+  await fbAuth.signOut();
+  currentUser = null; library=[]; liked=new Set(); audioBlobs={}; queueIds=[]; currentIndex=-1;
+  audioEl.pause(); audioEl.src='';
+  document.getElementById('app').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+  showView('loginView');
+}
+
+function friendlyAuthError(e){
+  const map = {
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/user-not-found': 'No account found for this email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/network-request-failed': 'No internet connection. Check your network and try again.',
+    'auth/too-many-requests': 'Too many attempts. Try again in a moment.'
+  };
+  return map[e.code] || e.message;
+}
+
+// Fires on login, signup, logout, and on app launch if a session is already cached.
+fbAuth.onAuthStateChanged(async (user) => {
+  authReady = true;
+  if(user){
+    await loadUserSession(user);
+  } else {
+    currentUser = null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('authScreen').style.display='flex';
+    showView('loginView');
+  }
+});
+
+async function loadUserSession(user){
+  await initDB();
+  currentUser = { uid: user.uid, email: user.email, username: user.displayName || user.email.split('@')[0] };
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('greetText').textContent = 'Hey, '+currentUser.username;
+  document.getElementById('avatarInit').textContent = currentUser.username.charAt(0).toUpperCase();
+
+  library = (await storeGet('library')) || [];
+  const likedArr = (await storeGet('liked')) || [];
+  liked = new Set(likedArr);
+  history = (await storeGet('history')) || [];
+
+  queueIds = library.map(s=>s.id);
+  await loadTrending();
+  await loadForYou();
+  renderAll();
+}
+
+/* ============================= LIBRARY / UPLOAD ============================= */
+async function handleUpload(e){
+  const files = Array.from(e.target.files || []);
+  if(!files.length) return;
+  for(const f of files){
+    const id = uid();
+    await saveAudioBlob(id, f);
+    const nameGuess = f.name.replace(/\.[^/.]+$/,'');
+    let artist = 'Unknown Artist', title = nameGuess;
+    if(nameGuess.includes(' - ')){ const parts = nameGuess.split(' - '); artist = parts[0].trim(); title = parts.slice(1).join(' - ').trim(); }
+    library.unshift({id, title, artist, addedAt:Date.now(), downloaded:true});
+  }
+  await storeSet('library', library);
+  queueIds = library.map(s=>s.id);
+  e.target.value = '';
+  toast(files.length+' song(s) added to your library');
+  renderAll();
+}
+
+/* ============================= SONG SEARCH & TRENDING (official YouTube API + caching) ============================= */
+// Using the official YouTube Data API for reliability — unofficial no-key
+// mirrors turned out too unstable to depend on (see chat). Two things keep
+// quota from ever becoming a real limit:
+//  1. Caching — repeated searches/trending loads reuse recent results.
+//  2. Key rotation — add more free API keys below and the app automatically
+//     switches to the next one the instant one hits its daily quota.
+const YOUTUBE_API_KEYS = [
+  'AIzaSyBPHz8SKt_9ecTwGqw88MKM-W4Y4Yn18Nc'
+  // Add more free keys here (one per Google Cloud project) to raise the
+  // effective combined daily limit, e.g.:
+  // 'AIza...secondKey',
+  // 'AIza...thirdKey',
+];
+let activeKeyIndex = 0;
+function currentApiKey(){ return YOUTUBE_API_KEYS[activeKeyIndex]; }
+function apiKeyMissing(){ return !YOUTUBE_API_KEYS.length || !YOUTUBE_API_KEYS[0] || YOUTUBE_API_KEYS[0].indexOf('PUT_YOUR') === 0; }
+function isQuotaError(data){
+  return !!(data && data.error && data.error.code === 403 &&
+    Array.isArray(data.error.errors) &&
+    data.error.errors.some(e => e.reason === 'quotaExceeded' || e.reason === 'dailyLimitExceeded'));
+}
+
+const CACHE_TTL_SEARCH = 30 * 60 * 1000;   // 30 min — search terms repeat a lot
+const CACHE_TTL_TRENDING = 3 * 60 * 60 * 1000; // 3 hr — trending barely changes hour to hour
+const apiCache = {}; // { cacheKey: { data, expires } }
+
+function getCached(key){
+  const hit = apiCache[key];
+  if(hit && hit.expires > Date.now()) return hit.data;
+  return null;
+}
+function setCached(key, data, ttl){
+  apiCache[key] = { data, expires: Date.now() + ttl };
+}
+
+// buildUrl(key) => full request URL using that key. Tries each configured
+// key in turn if one comes back quota-exceeded, so a single key running out
+// doesn't stop the app — it just moves on to the next one automatically.
+async function youtubeApiGet(buildUrl, cacheKey, ttl){
+  const cached = getCached(cacheKey);
+  if(cached) return cached;
+  let lastData = { error: { message: 'Could not reach YouTube.' } };
+  for(let attempt = 0; attempt < YOUTUBE_API_KEYS.length; attempt++){
+    try{
+      const res = await fetch(buildUrl(currentApiKey()));
+      const data = await res.json();
+      if(isQuotaError(data)){
+        activeKeyIndex = (activeKeyIndex + 1) % YOUTUBE_API_KEYS.length;
+        lastData = data;
+        continue; // this key is tapped out for today — try the next one
+      }
+      if(!data.error) setCached(cacheKey, data, ttl);
+      return data;
+    }catch(e){
+      lastData = { error: { message: 'Network error' } };
+    }
+  }
+  return lastData; // every key exhausted or unreachable
+}
+
+let discoverDebounce = null;
+function onSearchInput(){
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q){ renderDiscoverHome(); return; }
+  clearTimeout(discoverDebounce);
+  discoverDebounce = setTimeout(runYoutubeSearch, 400);
+}
+
+// Default view of the Search tab before typing anything: shows songs you've
+// played before, newest first, so you can jump back in with one tap.
+function renderDiscoverHome(){
+  const el = document.getElementById('searchList');
+  el.innerHTML = '';
+  if(apiKeyMissing()){ el.appendChild(emptyState('⚠','Search is not set up','Add a valid YouTube Data API key in the source code.')); return; }
+  const played = history.filter(h => h.source === 'youtube');
+  if(!played.length){
+    el.appendChild(emptyState('⌕','Search for any song','Type a title or artist above to find and play it.'));
+    return;
+  }
+  const contextList = played.map(h => ({ id:h.id, videoId:h.videoId, title:h.title, artist:h.artist, image:h.image, source:'youtube' }));
+  contextList.forEach(s => { sessionSongs[s.id] = s; });
+  contextList.forEach(song => el.appendChild(youtubeRow(song, contextList)));
+}
+async function runYoutubeSearch(){
+  const q = document.getElementById('searchInput').value.trim();
+  const el = document.getElementById('searchList');
+  if(!q){ el.innerHTML=''; return; }
+  if(apiKeyMissing()){ el.innerHTML=''; el.appendChild(emptyState('⚠','Search is not set up','Add a valid YouTube Data API key in the source code.')); return; }
+  el.innerHTML = '<div class="emptyState"><div class="t2">Searching…</div></div>';
+  try{
+    const url = (key) => 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=15&q='+
+      encodeURIComponent(q)+'&key='+encodeURIComponent(key);
+    const data = await youtubeApiGet(url, 'search:'+q.toLowerCase(), CACHE_TTL_SEARCH);
+    el.innerHTML = '';
+    if(data.error){ el.appendChild(emptyState('⚠','Search failed', data.error.message || 'Check the API key and quota.')); return; }
+    if(!data.items || !data.items.length){ el.appendChild(emptyState('∅','No results','Try a different search term.')); return; }
+    const results = data.items.map(itemToSong);
+    results.forEach(s=>{ sessionSongs[s.id] = s; });
+    results.forEach(song => el.appendChild(youtubeRow(song, results)));
+  }catch(e){
+    el.innerHTML='';
+    el.appendChild(emptyState('⚠','Couldn\'t reach YouTube','Check your connection and try again.'));
+  }
+}
+function itemToSong(item){
+  const vid = item.id.videoId;
+  const hqThumb = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+  return {
+    id: 'yt_'+vid, videoId: vid,
+    title: cleanTitle(item.snippet.title),
+    artist: item.snippet.channelTitle,
+    image: (item.snippet.thumbnails.high || item.snippet.thumbnails.medium || {url: hqThumb}).url,
+    source: 'youtube'
+  };
+}
+function cleanTitle(t){
+  return t.replace(/\(?\[?(official( music)? video|official audio|lyrics?( video)?|audio|HD|4K|visualizer)\]?\)?/gi,'').replace(/\s{2,}/g,' ').trim();
+}
+function youtubeRow(song, contextList){
+  const inLib = library.some(s=>s.id===song.id);
+  const isDownloading = downloadingIds.has(song.id);
+  const libSong = library.find(s=>s.id===song.id);
+  const isDownloaded = libSong && libSong.downloaded;
+
+  const div = document.createElement('div');
+  div.className='card';
+  div.innerHTML = `
+    <div class="thumb">${thumbInner(song)}</div>
+    <div class="meta"><div class="t">${escapeHtml(song.title)}</div><div class="a">${escapeHtml(song.artist)}</div></div>
+    <button class="rowBtn" title="Play">▶</button>
+    <button class="rowBtn ${isDownloaded?'on':''} ${isDownloading?'loading':''}" title="Download Track">${isDownloading?'⚙':(isDownloaded?'✓':'⬇')}</button>
+  `;
+  const [playBtn, dlBtn] = div.querySelectorAll('.rowBtn');
+  playBtn.onclick = (e)=>{ e.stopPropagation(); playYoutubeTrack(song, contextList); };
+  dlBtn.onclick = async (e)=>{
+    e.stopPropagation();
+    if(isDownloading) return;
+    if(isDownloaded){
+      toast('Song already stored locally');
+      return;
+    }
+    await downloadYoutubeAudio(song);
+  };
+  return div;
+}
+
+function playYoutubeTrack(song, contextList){
+  (contextList || [song]).forEach(s=>{ sessionSongs[s.id] = s; });
+  queueIds = (contextList || [song]).map(s=>s.id);
+  playSong(song.id);
+}
+
+/* ============================= "FOR YOU" (based on listening history, saved to Firebase) ============================= */
+function topTasteArtists(n){
+  const counts = {};
+  history.forEach(h => { if(h.artist) counts[h.artist] = (counts[h.artist]||0) + 1; });
+  return Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).slice(0,n);
+}
+async function loadForYou(){
+  const title = document.getElementById('forYouTitle');
+  const el = document.getElementById('forYouList');
+  el.innerHTML = '';
+  const topArtists = topTasteArtists(3);
+  if(apiKeyMissing() || topArtists.length === 0){ title.style.display = 'none'; return; }
+  title.style.display = 'block';
+  el.innerHTML = '<div class="emptyState"><div class="t2">Finding songs you\'ll like…</div></div>';
+  try{
+    const seedArtist = topArtists[Math.floor(Math.random()*topArtists.length)];
+    const url = (key) => 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=10&q='+
+      encodeURIComponent(seedArtist)+'&key='+encodeURIComponent(key);
+    const data = await youtubeApiGet(url, 'foryou:'+seedArtist.toLowerCase(), CACHE_TTL_SEARCH);
+    el.innerHTML = '';
+    if(data.error || !data.items || !data.items.length){ title.style.display = 'none'; return; }
+    const recentIds = new Set(history.slice(0,15).map(h=>h.id));
+    const picks = data.items.map(itemToSong).filter(s => !recentIds.has(s.id));
+    if(!picks.length){ title.style.display = 'none'; return; }
+    picks.forEach(s=>{ sessionSongs[s.id] = s; });
+    picks.forEach(song => el.appendChild(youtubeRow(song, picks)));
+  }catch(e){
+    title.style.display = 'none';
+  }
+}
+
+// Guesses the visitor's country from their browser locale so "Trending now"
+// reflects their region's real chart instead of always US.
+function getRegionCode(){
+  try{
+    const loc = navigator.language || navigator.userLanguage || 'en-US';
+    const parts = loc.split('-');
+    if(parts.length > 1) return parts[1].toUpperCase();
+  }catch(e){}
+  return 'US';
+}
+
+async function loadTrending(){
+  const el = document.getElementById('trendingList');
+  const hint = document.getElementById('trendingHint');
+  if(apiKeyMissing()){
+    el.innerHTML = '';
+    el.appendChild(emptyState('🔑','Trending isn\'t set up yet','Add a YouTube Data API key in YOUTUBE_API_KEYS.'));
+    return;
+  }
+  el.innerHTML = '<div class="emptyState"><div class="t2">Loading trending songs…</div></div>';
+  try{
+    const region = getRegionCode();
+    const url = (key) => 'https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&videoCategoryId=10&maxResults=12&regionCode='+
+      encodeURIComponent(region)+'&key='+encodeURIComponent(key);
+    const data = await youtubeApiGet(url, 'trending:'+region, CACHE_TTL_TRENDING);
+    el.innerHTML = '';
+    hint.style.display = 'none';
+    if(data.error || !data.items || !data.items.length){ el.appendChild(emptyState('∅','Nothing to show right now','Try again in a moment.')); return; }
+    const trendingSongs = data.items.map(item => ({
+      id:'yt_'+item.id, videoId:item.id, title:cleanTitle(item.snippet.title),
+      artist:item.snippet.channelTitle, image:(item.snippet.thumbnails.high || item.snippet.thumbnails.medium).url, source:'youtube'
+    }));
+    trendingSongs.forEach(s=>{ sessionSongs[s.id] = s; });
+    trendingSongs.forEach(song => el.appendChild(youtubeRow(song, trendingSongs)));
+  }catch(e){
+    el.innerHTML = '';
+    hint.style.display = 'block';
+  }
+}
+
+/* ============================= YOUTUBE AUDIO CONVERTER / DOWNLOADER ============================= */
+async function downloadYoutubeAudio(song){
+  if(downloadingIds.has(song.id)) return;
+  downloadingIds.add(song.id);
+  renderAll();
+  toast('Converting and downloading MP3...');
+
+  const ytUrl = `https://www.youtube.com/watch?v=${song.videoId}`;
+  let audioUrl = null;
+
+  try {
+    const res = await fetch('https://api.cobalt.tools/api/json', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: ytUrl, downloadMode: 'audio', audioFormat: 'mp3' })
+    });
+    const data = await res.json();
+    if(data && data.url){
+      audioUrl = data.url;
+    }
+  } catch(e) {
+    console.warn("Primary API failed, trying fallback...", e);
+  }
+
+  if(!audioUrl){
+    try {
+      const fallbackRes = await fetch(`https://co.wuk.sh/api/json`, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: ytUrl, downloadMode: 'audio', audioFormat: 'mp3' })
+      });
+      const fallbackData = await fallbackRes.json();
+      if(fallbackData && fallbackData.url) audioUrl = fallbackData.url;
+    } catch(e) {
+      console.error("Fallback conversion failed", e);
+    }
+  }
+
+  if(!audioUrl){
+    downloadingIds.delete(song.id);
+    renderAll();
+    toast('Download failed. Try another track or check network.');
+    return;
+  }
+
+  try {
+    const audioRes = await fetch(audioUrl);
+    const audioBlob = await audioRes.blob();
+    
+    await saveAudioBlob(song.id, audioBlob);
+
+    let libSong = library.find(s=>s.id===song.id);
+    if(!libSong){
+      libSong = {
+        id: song.id, videoId: song.videoId, title: song.title,
+        artist: song.artist, image: song.image, addedAt: Date.now(),
+        downloaded: true, source: 'local'
+      };
+      library.unshift(libSong);
+    } else {
+      libSong.downloaded = true;
+      libSong.source = 'local';
+    }
+
+    await storeSet('library', library);
+    downloadingIds.delete(song.id);
+    toast('Downloaded & saved to app offline!');
+    renderAll();
+  } catch(e) {
+    console.error("Audio fetch error", e);
+    downloadingIds.delete(song.id);
+    renderAll();
+    toast('Failed to save audio file');
+  }
+}
+
+/* ============================= YOUTUBE EMBEDDED PLAYER API ENGINE ============================= */
+let ytPlayer = null, ytReady = false, ytPendingVideoId = null;
+
+window.onYouTubeIframeAPIReady = function(){
+  ytPlayer = new YT.Player('ytPlayerBox', {
+    height:'1', width:'1',
+    playerVars:{ playsinline:1, controls:0, rel:0 },
+    events:{
+      onReady: ()=>{ 
+        ytReady = true; 
+        if(ytPendingVideoId){ 
+          ytPlayer.loadVideoById(ytPendingVideoId); 
+          ytPendingVideoId = null; 
+        } 
+      },
+      onStateChange: onYTStateChange
+    }
+  });
+};
+
+let ytProgressTimer = null;
+function onYTStateChange(e){
+  if(e.data === YT.PlayerState.PLAYING){
+    setPlayingUI(true);
+    clearInterval(ytProgressTimer);
+    ytProgressTimer = setInterval(()=>{
+      const cur = ytPlayer.getCurrentTime() || 0, dur = ytPlayer.getDuration() || 0;
+      updateProgressBars(cur, dur);
+    }, 500);
+  } else {
+    clearInterval(ytProgressTimer);
+    if(e.data === YT.PlayerState.PAUSED) setPlayingUI(false);
+    if(e.data === YT.PlayerState.ENDED){
+      if(repeatMode==='one'){ ytPlayer.seekTo(0); ytPlayer.playVideo(); }
+      else playNext();
+    }
+  }
+}
+
+function updateProgressBars(cur, dur){
+  const pct = dur ? (cur/dur*100) : 0;
+  document.getElementById('miniProgress').style.width = pct+'%';
+  document.getElementById('npFill').style.width = pct+'%';
+  document.getElementById('npKnob').style.left = pct+'%';
+  document.getElementById('npCur').textContent = fmtTime(cur);
+  document.getElementById('npDur').textContent = fmtTime(dur);
+}
+
+/* ============================= LYRICS ============================= */
+function toggleLyrics(){
+  const panel = document.getElementById('lyricsPanel');
+  panel.classList.toggle('show');
+  if(panel.classList.contains('show')) loadLyricsForCurrent();
+}
+async function loadLyricsForCurrent(){
+  const body = document.getElementById('lyricsBody');
+  const song = getSong(currentSongId());
+  if(!song){ body.textContent = 'Pick a song to see lyrics.'; return; }
+  body.textContent = 'Loading lyrics…';
+  try{
+    const artist = (song.artist||'').replace(/\s*-\s*Topic$/i,'').trim();
+    const url = 'https://api.lyrics.ovh/v1/'+encodeURIComponent(artist)+'/'+encodeURIComponent(song.title);
+    const res = await fetch(url);
+    const data = await res.json();
+    body.textContent = data.lyrics ? data.lyrics.trim() : 'No lyrics found for this track.';
+  }catch(e){
+    body.textContent = 'Couldn\'t load lyrics right now.';
+  }
+}
+
+async function toggleLike(songId){
+  if(!songId) return;
+  if(liked.has(songId)) liked.delete(songId); else liked.add(songId);
+  await storeSet('liked', Array.from(liked));
+  renderAll();
+  updateNPLikeState();
+}
+async function toggleDownload(songId){
+  if(!songId) return;
+  const song = getSong(songId);
+  if(!song) return;
+  
+  if(song.downloaded){
+    song.downloaded = false;
+    await removeAudioBlob(song.id);
+    await storeSet('library', library);
+    toast('Removed from downloaded audio');
+    renderAll();
+    updateNPDownloadState();
+    return;
+  }
+
+  if(song.source==='youtube'){
+    await downloadYoutubeAudio(song);
+  }
+}
+
+/* ============================= PLAYBACK & APK BACKGROUND KEEP-ALIVE ============================= */
+function currentSongId(){ return queueIds[currentIndex] || null; }
+let sessionSongs = {};
+function getSong(id){ return library.find(s=>s.id===id) || sessionSongs[id]; }
+
+async function playSong(songId){
+  const idx = queueIds.indexOf(songId);
+  if(idx === -1) return;
+  currentIndex = idx;
+  const song = getSong(songId);
+  if(!song) return;
+
+  recordHistory(song);
+
+  const storedBlob = await getAudioBlob(song.id);
+
+  if(storedBlob){
+    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+    if(audioBlobs[songId]) URL.revokeObjectURL(audioBlobs[songId]);
+    const blobUrl = URL.createObjectURL(storedBlob);
+    audioBlobs[songId] = blobUrl;
+    audioEl.src = blobUrl;
+    audioEl.play().then(()=>{
+      setPlayingUI(true);
+      setupMediaSession(song);
+    }).catch(()=>setPlayingUI(false));
+  } else if(song.source === 'youtube'){
+    if(audioEl) audioEl.pause();
+    if(ytReady && ytPlayer && ytPlayer.loadVideoById){ ytPlayer.loadVideoById(song.videoId); }
+    else { ytPendingVideoId = song.videoId; }
+    setupMediaSession(song);
+  } else {
+    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+    toast('Audio file missing locally');
+  }
+
+  updateNowPlayingInfo();
+  showMiniPlayer();
+  if(document.getElementById('lyricsPanel').classList.contains('show')) loadLyricsForCurrent();
+}
+
+// Logs each play to history (newest first, deduped, capped) and saves it to Firestore.
+function recordHistory(song){
+  if(!song) return;
+  history = history.filter(h => h.id !== song.id);
+  history.unshift({
+    id: song.id, title: song.title, artist: song.artist,
+    image: song.image, videoId: song.videoId, source: song.source,
+    playedAt: Date.now()
+  });
+  if(history.length > 50) history = history.slice(0, 50);
+  storeSet('history', history); // fire-and-forget, don't block playback
+  loadForYou(); // refresh "Made for you" now that taste data changed
+}
+
+function togglePlay(){
+  const song = getSong(currentSongId());
+  if(song && song.source==='youtube' && !audioEl.src){
+    if(!ytPlayer) return;
+    const state = ytPlayer.getPlayerState();
+    if(state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo(); else ytPlayer.playVideo();
+    return;
+  }
+  if(!audioEl.src){ if(queueIds.length) playSong(queueIds[0]); return; }
+  if(audioEl.paused){ audioEl.play().then(()=>setPlayingUI(true)); }
+  else { audioEl.pause(); setPlayingUI(false); }
+}
+
+function playNext(){
+  if(!queueIds.length) return;
+  let idx = currentIndex;
+  if(shuffleOn){ idx = Math.floor(Math.random()*queueIds.length); playSong(queueIds[idx]); return; }
+  if(idx+1 < queueIds.length){ playSong(queueIds[idx+1]); return; }
+  if(repeatMode==='all'){ playSong(queueIds[0]); return; }
+  autoplayNext(); // end of queue — keep the music going, Spotify-radio style
+}
+
+// Picks a track related to what's been playing (same artist as the current
+// song or a top artist from history) and queues it up automatically.
+async function autoplayNext(){
+  if(apiKeyMissing()) return;
+  const current = getSong(currentSongId());
+  const seedArtist = (current && current.artist) || topTasteArtists(1)[0];
+  if(!seedArtist) return;
+  try{
+    const url = (key) => 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=10&q='+
+      encodeURIComponent(seedArtist)+'&key='+encodeURIComponent(key);
+    const data = await youtubeApiGet(url, 'foryou:'+seedArtist.toLowerCase(), CACHE_TTL_SEARCH);
+    if(!data.items || !data.items.length) return;
+    const recentIds = new Set(history.slice(0,15).map(h=>h.id));
+    const candidates = data.items.map(itemToSong).filter(s => !recentIds.has(s.id));
+    if(!candidates.length) return;
+    const pick = candidates[Math.floor(Math.random()*Math.min(5, candidates.length))];
+    sessionSongs[pick.id] = pick;
+    queueIds.push(pick.id);
+    toast('Autoplaying similar: '+pick.title);
+    playSong(pick.id);
+  }catch(e){ /* silent — just stop if we can't reach YouTube */ }
+}
+function playPrev(){
+  if(!queueIds.length) return;
+  const song = getSong(currentSongId());
+  const curTime = (song && song.source==='youtube' && !audioEl.src) ? (ytPlayer ? ytPlayer.getCurrentTime() : 0) : audioEl.currentTime;
+  if(curTime > 3){
+    if(song && song.source==='youtube' && !audioEl.src){ ytPlayer.seekTo(0); } else { audioEl.currentTime = 0; }
+    return;
+  }
+  let idx = currentIndex-1 < 0 ? (repeatMode==='all'? queueIds.length-1 : 0) : currentIndex-1;
+  playSong(queueIds[idx]);
+}
+function toggleShuffle(){
+  shuffleOn = !shuffleOn;
+  document.getElementById('shuffleBtn').classList.toggle('on', shuffleOn);
+  toast(shuffleOn ? 'Shuffle on' : 'Shuffle off');
+}
+function toggleRepeat(){
+  repeatMode = repeatMode==='off' ? 'all' : repeatMode==='all' ? 'one' : 'off';
+  const btn = document.getElementById('repeatBtn');
+  btn.classList.toggle('on', repeatMode!=='off');
+  btn.textContent = repeatMode==='one' ? '⟲' : '⟳';
+  toast('Repeat: '+repeatMode);
+}
+audioEl.addEventListener('ended', ()=>{
+  if(repeatMode === 'one'){ audioEl.currentTime=0; audioEl.play(); return; }
+  playNext();
+});
+audioEl.addEventListener('timeupdate', updateProgressUI);
+audioEl.addEventListener('play', ()=>setPlayingUI(true));
+audioEl.addEventListener('pause', ()=>setPlayingUI(false));
+
+function setPlayingUI(isPlaying){
+  document.getElementById('miniPlayBtn').textContent = isPlaying ? '⏸' : '▶';
+  const npBtn = document.getElementById('npPlayBtn');
+  npBtn.textContent = isPlaying ? '⏸' : '▶';
+  if('mediaSession' in navigator) navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+}
+function updateProgressUI(){
+  const cur = audioEl.currentTime || 0, dur = audioEl.duration || 0;
+  const pct = dur ? (cur/dur*100) : 0;
+  document.getElementById('miniProgress').style.width = pct+'%';
+  document.getElementById('npFill').style.width = pct+'%';
+  document.getElementById('npKnob').style.left = pct+'%';
+  document.getElementById('npCur').textContent = fmtTime(cur);
+  document.getElementById('npDur').textContent = fmtTime(dur);
+}
+function seekFromBar(e){
+  const bar = document.getElementById('npBar');
+  const rect = bar.getBoundingClientRect();
+  const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+  const song = getSong(currentSongId());
+  if(song && song.source==='youtube' && !audioEl.src){
+    if(ytPlayer && ytPlayer.getDuration) ytPlayer.seekTo(pct * ytPlayer.getDuration());
+    return;
+  }
+  if(audioEl.duration) audioEl.currentTime = pct * audioEl.duration;
+}
+
+function showMiniPlayer(){ document.getElementById('miniPlayer').style.display='flex'; }
+
+function updateNowPlayingInfo(){
+  const song = getSong(currentSongId());
+  if(!song) return;
+
+  const miniThumb = document.getElementById('miniThumb');
+  if(song.image){
+    miniThumb.innerHTML = `<img src="${song.image}" alt="">`;
+  } else {
+    miniThumb.innerHTML = '♪';
+  }
+
+  document.getElementById('miniTitle').textContent = song.title;
+  document.getElementById('miniArtist').textContent = song.artist;
+  document.getElementById('npTitle').textContent = song.title;
+  document.getElementById('npArtist').textContent = song.artist;
+  document.getElementById('npFrom').textContent = song.downloaded ? 'Stored Offline' : (song.source==='youtube' ? 'Playing from YouTube' : 'From your library');
+  
+  const npArtImg = document.getElementById('npArtImg');
+  const npArtIcon = document.getElementById('npArtIcon');
+  if(song.image){
+    npArtImg.src = song.image;
+    npArtImg.style.display = 'block';
+    npArtIcon.style.display = 'none';
+  } else {
+    npArtImg.style.display = 'none';
+    npArtIcon.style.display = 'block';
+  }
+
+  updateNPLikeState();
+  updateNPDownloadState();
+}
+
+function updateNPLikeState(){
+  const id = currentSongId();
+  const btn = document.getElementById('npLikeBtn');
+  const on = liked.has(id);
+  btn.textContent = on ? '♥' : '♡';
+  btn.classList.toggle('on', on);
+}
+function updateNPDownloadState(){
+  const song = getSong(currentSongId());
+  const btn = document.getElementById('npDlBtn');
+  if(!song) return;
+  btn.classList.toggle('on', !!song.downloaded);
+  btn.textContent = song.downloaded ? '✓ Downloaded' : '⬇ Download';
+}
+
+function openNowPlaying(){ if(currentSongId()) document.getElementById('nowPlaying').classList.add('open'); }
+function closeNowPlaying(){ document.getElementById('nowPlaying').classList.remove('open'); }
+
+/* Android Notification & Control Hook */
+function setupMediaSession(song){
+  if(!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: song.title,
+    artist: song.artist,
+    album: 'MAZ MUSIC',
+    artwork: [
+      { src: song.image || goldArtworkDataUri(), sizes: '512x512', type: 'image/png' }
+    ]
+  });
+
+  navigator.mediaSession.setActionHandler('play', () => togglePlay());
+  navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+  navigator.mediaSession.setActionHandler('previoustrack', playPrev);
+  navigator.mediaSession.setActionHandler('nexttrack', playNext);
+  navigator.mediaSession.setActionHandler('seekto', (details) => {
+    if (details.seekTime != null) {
+      if(audioEl.src) audioEl.currentTime = details.seekTime;
+      else if(ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(details.seekTime);
+    }
+  });
+}
+
+let _artworkCache = null;
+function goldArtworkDataUri(){
+  if(_artworkCache) return _artworkCache;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512'>
+    <rect width='512' height='512' fill='#0a0a0a'/>
+    <circle cx='256' cy='256' r='180' fill='none' stroke='#d4af37' stroke-width='18'/>
+    <circle cx='256' cy='256' r='40' fill='#f4cc4c'/>
+  </svg>`;
+  _artworkCache = 'data:image/svg+xml;base64,' + btoa(svg);
+  return _artworkCache;
+}
+
+/* ============================= RENDERING ============================= */
+function switchTab(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.navBtn').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  if(name==='library') renderLibrary();
+}
+
+function songRow(song, opts={}){
+  const isLiked = liked.has(song.id);
+  const isDownloading = downloadingIds.has(song.id);
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <div class="thumb">${thumbInner(song)}</div>
+    <div class="meta"><div class="t">${escapeHtml(song.title)}</div><div class="a">${escapeHtml(song.artist)}</div></div>
+    <button class="rowBtn ${isLiked?'on':''}" title="Like">${isLiked?'♥':'♡'}</button>
+    <button class="rowBtn ${song.downloaded?'on':''} ${isDownloading?'loading':''}" title="Download">${isDownloading?'⚙':(song.downloaded?'✓':'⬇')}</button>
+  `;
+  const btns = div.querySelectorAll('.rowBtn');
+  btns[0].onclick = (e)=>{ e.stopPropagation(); toggleLike(song.id); };
+  btns[1].onclick = (e)=>{ e.stopPropagation(); toggleDownload(song.id); };
+  div.onclick = ()=>{ queueIds = library.map(s=>s.id); playSong(song.id); };
+  return div;
+}
+function thumbInner(song){
+  if(song.image) return `<img src="${song.image}" alt="" onerror="this.parentElement.textContent='♪'">`;
+  return '♪';
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function renderAll(){
+  renderHome(); renderLibrary();
+  if(currentSongId()) updateNowPlayingInfo();
+}
+function renderHome(){
+  const el = document.getElementById('homeList');
+  el.innerHTML = '';
+  if(!library.length){
+    el.appendChild(emptyState('🎵','Your library is empty','Tap "Add songs" above to upload mp3 or audio files from your device.'));
+    return;
+  }
+  library.slice().sort((a,b)=>b.addedAt-a.addedAt).forEach(s=> el.appendChild(songRow(s)));
+}
+function renderSearch(){
+  const q = (document.getElementById('searchInput').value||'').toLowerCase();
+  const el = document.getElementById('searchList');
+  el.innerHTML = '';
+  if(!q){ el.appendChild(emptyState('⌕','Search your library','Find songs by title or artist.')); return; }
+  const results = library.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+  if(!results.length){ el.appendChild(emptyState('∅','No matches', 'Try a different title or artist.')); return; }
+  results.forEach(s=> el.appendChild(songRow(s)));
+}
+function setLibFilter(f){
+  libFilter = f;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.lib===f));
+  renderLibrary();
+}
+function renderLibrary(){
+  const el = document.getElementById('libList');
+  el.innerHTML = '';
+  let list = library;
+  if(libFilter==='liked') list = library.filter(s=>liked.has(s.id));
+  if(libFilter==='downloaded') list = library.filter(s=>s.downloaded);
+  document.getElementById('libTitle').textContent =
+    libFilter==='liked' ? 'Liked Songs' : libFilter==='downloaded' ? 'Downloaded' : 'Your Library';
+  if(!list.length){
+    el.appendChild(emptyState('🗂', 'Nothing here yet',
+      libFilter==='liked' ? 'Tap the heart on any song to save it here.' :
+      libFilter==='downloaded' ? 'Tap the download icon on a song to make it available offline.' :
+      'Add songs from the Home tab to build your library.'));
+    return;
+  }
+  list.slice().sort((a,b)=>b.addedAt-a.addedAt).forEach(s=> el.appendChild(songRow(s)));
+}
+function emptyState(icon,t1,t2){
+  const d = document.createElement('div');
+  d.className='emptyState';
+  d.innerHTML = `<div class="big">${icon}</div><div class="t1">${t1}</div><div class="t2">${t2}</div>`;
+  return d;
+}
+
+/* ============================= INIT ============================= */
+// Session restore is handled by fbAuth.onAuthStateChanged (defined above),
+// which fires automatically on load with the cached user, if any.
+showView('loginView');
+</script>
+</body>
+</html>
